@@ -1,12 +1,10 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
 using salcudean_delia_lab2.Models;
 
 namespace salcudean_delia_lab2.Pages.BookPages;
 
-public class CreateModel : PageModel
+public class CreateModel : BookCategoriesPageModel
 {
     private readonly salcudean_delia_lab2Context _context;
 
@@ -14,6 +12,9 @@ public class CreateModel : PageModel
     {
         _context = context;
     }
+
+    [BindProperty]
+    public Book Book { get; set; } = default!;
 
     public IActionResult OnGet()
     {
@@ -29,30 +30,27 @@ public class CreateModel : PageModel
                 }),
             "ID", "FullName");
 
+        Book = new Book();
+        Book.BookCategories = new List<BookCategory>();
+
+        PopulateAssignedCategoryData(_context, Book);
+
         return Page();
     }
 
-    [BindProperty]
-    public Book Book { get; set; } = default!;
-
-    // To protect from overposting attacks, see https://aka.ms/RazorPagesCRUD.
-    public async Task<IActionResult> OnPostAsync()
+    public async Task<IActionResult> OnPostAsync(string[] selectedCategories)
     {
-        if (!ModelState.IsValid)
+        Book.BookCategories = new List<BookCategory>();
+
+        if (selectedCategories != null)
         {
-            ViewData["PublisherID"] = new SelectList(
-                _context.Set<Publisher>(), "ID", "PublisherName");
-
-            ViewData["AuthorID"] = new SelectList(
-                _context.Set<Author>()
-                    .Select(a => new
-                    {
-                        a.ID,
-                        FullName = a.FirstName + " " + a.LastName
-                    }),
-                "ID", "FullName");
-
-            return Page();
+            foreach (var cat in selectedCategories)
+            {
+                Book.BookCategories.Add(new BookCategory
+                {
+                    CategoryID = int.Parse(cat)
+                });
+            }
         }
 
         _context.Book.Add(Book);

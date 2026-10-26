@@ -8,6 +8,7 @@ namespace salcudean_delia_lab2.Pages.BookPages;
 public class DetailsModel : PageModel
 {
     private readonly salcudean_delia_lab2Context _context;
+
     public DetailsModel(salcudean_delia_lab2Context context)
     {
         _context = context;
@@ -17,20 +18,22 @@ public class DetailsModel : PageModel
 
     public async Task<IActionResult> OnGetAsync(int? id)
     {
-        if (id is null)
+        if (id == null)
         {
             return NotFound();
         }
 
-        var book = await _context.Book.FirstOrDefaultAsync(m => m.ID == id);
-        if (book is null)
+        var book = await _context.Book
+            .Include(b => b.BookCategories)
+                .ThenInclude(bc => bc.Category)
+            .FirstOrDefaultAsync(b => b.ID == id);
+
+        if (book == null)
         {
             return NotFound();
         }
-        else
-        {
-            Book = book;
-        }
+
+        Book = book;
 
         return Page();
     }

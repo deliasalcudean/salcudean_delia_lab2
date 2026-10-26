@@ -7,6 +7,7 @@ namespace salcudean_delia_lab2.Models
     {
         [Display(Name = "Book Title")]
         public int ID { get; set; }
+
         public string Title { get; set; }
 
         public int AuthorID { get; set; }
@@ -20,6 +21,7 @@ namespace salcudean_delia_lab2.Models
 
         public int? PublisherID { get; set; }
         public Publisher? Publisher { get; set; }
+        public ICollection<BookCategory>? BookCategories { get; set; }
     }
 }
 

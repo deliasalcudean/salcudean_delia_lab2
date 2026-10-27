@@ -1,4 +1,4 @@
-@page
+@page "{id:int?}"
 @model salcudean_delia_lab2.Pages.PublisherPages.IndexModel
 
 @{
@@ -21,13 +21,19 @@
         </tr>
     </thead>
     <tbody>
-    @foreach (var item in Model.Publisher)
+    @foreach (var item in Model.PublisherData.Publishers)
     {
-        <tr>
+        string selectedRow = "";
+        if (item.ID == Model.PublisherID)
+        {
+            selectedRow = "table-success";
+        }
+            <tr class=" @selectedRow ">
             <td>
                 @item.PublisherName
             </td>
             <td>
+                <a asp-page="./Index" asp-route-id=" @item.ID ">Select </a> |
                 <a asp-page="./Edit" asp-route-id="@item.ID">Edit</a> |
                 <a asp-page="./Details" asp-route-id="@item.ID">Details</a> |
                 <a asp-page="./Delete" asp-route-id="@item.ID">Delete</a>
@@ -36,3 +42,27 @@
     }
     </tbody>
 </table>
+@if (Model.PublisherData.Books != null)
+{
+    <h3>Books Edited by Selected Publisher</h3>
+    <table class="table">
+        <tbody>
+        @foreach (var item in Model.PublisherData.Publishers)
+        {
+            string selectedRow = "";
+            if (item.ID == Model.PublisherID)
+            {
+                selectedRow = "table-success";
+            }
+            <tr class="@selectedRow">
+                <td>
+                    @foreach (var b in item.Books)
+                    {
+                        @b.Title @: @b.Author.FullName<br />
+                    }
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+}

@@ -1,26 +1,41 @@
+
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using salcudean_delia_lab2.Data;
+
 var builder = WebApplication.CreateBuilder(args);
-var connectionString = builder.Configuration.GetConnectionString("salcudean_delia_lab2Context") ?? throw new InvalidOperationException("Connection string 'salcudean_delia_lab2Context' not found.");
 
-builder.Services.AddDbContext<salcudean_delia_lab2Context>(options => options.UseSqlServer(connectionString));
+var connectionString = builder.Configuration.GetConnectionString("salcudean_delia_lab2Context")
+    ?? throw new InvalidOperationException("Connection string 'salcudean_delia_lab2Context' not found.");
 
-// Add services to the container.
+// Contextul bazei de date pentru aplicație
+builder.Services.AddDbContext<salcudean_delia_lab2Context>(options =>
+    options.UseSqlServer(connectionString));
+
+// Contextul bazei de date pentru Identity
+builder.Services.AddDbContext<LibraryIdentityContext>(options =>
+    options.UseSqlServer(connectionString));
+
+// Configurare Identity cu ApplicationUser
+builder.Services.AddDefaultIdentity<ApplicationUser>(options =>
+    options.SignIn.RequireConfirmedAccount = true)
+    .AddEntityFrameworkStores<LibraryIdentityContext>();
+
 builder.Services.AddRazorPages();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// Configurarea aplicației
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 
 app.UseHttpsRedirection();
-
 app.UseRouting();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapStaticAssets();

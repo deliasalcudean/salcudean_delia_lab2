@@ -1,17 +1,16 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
+using salcudean_delia_lab2.Data; // Asigură-te că ai acest using pentru a recunoaște LibraryIdentityContext
 using salcudean_delia_lab2.Models;
-using static System.Runtime.InteropServices.JavaScript.JSType;
-
 
 namespace salcudean_delia_lab2.Pages.BookPages;
 
 public class IndexModel : PageModel
 {
-    private readonly salcudean_delia_lab2Context _context;
+    private readonly LibraryIdentityContext _context;
 
-    public IndexModel(salcudean_delia_lab2Context context)
+    public IndexModel(LibraryIdentityContext context)
     {
         _context = context;
     }
@@ -23,6 +22,7 @@ public class IndexModel : PageModel
     public string TitleSort { get; set; } = default!;
     public string AuthorSort { get; set; } = default!;
     public string CurrentFilter { get; set; } = default!;
+
     public async Task OnGetAsync(int? id, int? categoryID, string sortOrder, string searchString)
     {
         BookD = new BookData();
@@ -45,33 +45,31 @@ public class IndexModel : PageModel
         {
             BookD.Books = BookD.Books.Where(s => s.Author.FirstName.Contains(searchString)
                 || s.Author.LastName.Contains(searchString)
-                || s.Title.Contains(searchString));
+                || s.Title.Contains(searchString)).ToList(); // Am adăugat .ToList() pentru a fi compatibil cu tipul listei
+        }
 
-            if (id != null)
-            {
-                BookID = id.Value;
-                Book book = BookD.Books
-                .Where(i => i.ID == id.Value).Single();
-                BookD.Categories = book.BookCategories.Select(s => s.Category);
-            }
-            switch (sortOrder)
-            {
-                case "title_desc":
-                    BookD.Books = BookD.Books.OrderByDescending(s =>
-                   s.Title);
-                    break;
-                case "author_desc":
-                    BookD.Books = BookD.Books.OrderByDescending(s =>
-                   s.Author.FullName);
-                    break;
-                case "author":
-                    BookD.Books = BookD.Books.OrderBy(s =>
-                   s.Author.FullName);
-                    break;
-                default:
-                    BookD.Books = BookD.Books.OrderBy(s => s.Title);
-                    break;
-            }
+        if (id != null)
+        {
+            BookID = id.Value;
+            Book book = BookD.Books
+            .Where(i => i.ID == id.Value).Single();
+            BookD.Categories = book.BookCategories.Select(s => s.Category);
+        }
+
+        switch (sortOrder)
+        {
+            case "title_desc":
+                BookD.Books = BookD.Books.OrderByDescending(s => s.Title).ToList();
+                break;
+            case "author_desc":
+                BookD.Books = BookD.Books.OrderByDescending(s => s.Author.FullName).ToList();
+                break;
+            case "author":
+                BookD.Books = BookD.Books.OrderBy(s => s.Author.FullName).ToList();
+                break;
+            default:
+                BookD.Books = BookD.Books.OrderBy(s => s.Title).ToList();
+                break;
         }
     }
 }
